@@ -1,8 +1,11 @@
 <?php
 
+use App\Livewire\Pages\DashboardPage;
 use App\Livewire\Pages\HomePage;
 use App\Livewire\Pages\OrderPage;
 use App\Livewire\Pages\ProductDetailPage;
+use App\Livewire\Pages\ProfilePage;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomePage::class)->name('home');
@@ -14,12 +17,19 @@ Route::get('/order/{transaction:uuid}', OrderPage::class)
     ->middleware(['auth'])
     ->name('orders.show');
 
-Route::view('dashboard', 'dashboard')
+Route::get('/dashboard', DashboardPage::class)
     ->middleware(['auth', 'verified'])
     ->name('dashboard');
 
-Route::view('profile', 'profile')
+Route::get('/profile', ProfilePage::class)
     ->middleware(['auth'])
     ->name('profile');
+
+Route::post('/logout', function () {
+    Auth::guard('web')->logout();
+    request()->session()->invalidate();
+    request()->session()->regenerateToken();
+    return redirect('/');
+})->name('logout')->middleware('auth');
 
 require __DIR__.'/auth.php';

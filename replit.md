@@ -71,6 +71,8 @@ Uses Replit's built-in PostgreSQL database. Migrations cover:
 - `App\Livewire\Pages\HomePage` - Landing page
 - `App\Livewire\Pages\ProductDetailPage` - Product detail with order actions
 - `App\Livewire\Pages\OrderPage` - Checkout / payment instructions page
+- `App\Livewire\Pages\DashboardPage` - User dashboard with stats and order history
+- `App\Livewire\Pages\ProfilePage` - Profile settings wrapper (embeds 3 Volt subcomponents)
 
 ### Services
 - `App\Services\OrderService` - Idempotent group assignment + transaction creation
@@ -90,3 +92,7 @@ Uses Replit's built-in PostgreSQL database. Migrations cover:
 - UUID-based route model binding for Transaction (`/order/{transaction:uuid}`)
 - Format waktu: `j M Y, H:i` (contoh: 9 Mar 2026, 22:40)
 - Format mata uang: `Rp 100.000` (titik sebagai pemisah ribuan)
+- Dashboard & profile use the marketing layout (layouts.marketing) with auth-aware header
+- marketing-header supports `authUser` prop — shows avatar dropdown with Dashboard, Profil, Keluar links when authenticated
+- Logout route: `POST /logout` (named `logout`), does NOT use Livewire action from header
+- After adding new Blade files with new Tailwind classes, always run `npm run build` to rebuild CSS
