@@ -15,5 +15,8 @@ export default defineConfig({
             host: '0.0.0.0',
         },
         allowedHosts: 'all',
+        watch: {
+            ignored: ['**/vendor/**', '**/node_modules/**', '**/storage/**'],
+        },
     },
 });
