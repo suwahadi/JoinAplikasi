@@ -300,14 +300,19 @@
                                     <ol class="mt-3 space-y-3">
                                         @if($instrType === 'echannel')
                                             @foreach(['Buka aplikasi Mandiri Online atau kunjungi ATM Mandiri.', 'Pilih menu "Bayar" → "Multi Payment".', 'Masukkan Kode Perusahaan dan Kode Tagihan di atas.', 'Konfirmasi detail tagihan dan selesaikan pembayaran.', 'Simpan bukti bayar untuk arsip.'] as $idx => $step)
+                                                <li class="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-400">
+                                                    <span class="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white dark:bg-white dark:text-slate-900">{{ $idx + 1 }}</span>
+                                                    <span>{{ $step }}</span>
+                                                </li>
+                                            @endforeach
                                         @else
                                             @foreach(['Buka aplikasi m-banking, ATM, atau internet banking bank kamu.', 'Pilih menu Transfer / Bayar → Virtual Account.', 'Masukkan nomor VA di atas persis tanpa spasi.', 'Masukkan nominal sesuai total tagihan: Rp ' . number_format($transaction->amount, 0, ',', '.') . '.', 'Konfirmasi dan selesaikan pembayaran. Status diperbarui otomatis.'] as $idx => $step)
+                                                <li class="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-400">
+                                                    <span class="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white dark:bg-white dark:text-slate-900">{{ $idx + 1 }}</span>
+                                                    <span>{{ $step }}</span>
+                                                </li>
+                                            @endforeach
                                         @endif
-                                            <li class="flex items-start gap-3 text-sm text-slate-600 dark:text-slate-400">
-                                                <span class="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-slate-900 text-xs font-bold text-white dark:bg-white dark:text-slate-900">{{ $idx + 1 }}</span>
-                                                <span>{{ $step }}</span>
-                                            </li>
-                                        @endforeach
                                     </ol>
                                 </div>
 
