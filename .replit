@@ -1,0 +1,40 @@
+modules = ["php-8.2", "nodejs-20", "web"]
+[agent]
+expertMode = true
+
+[nix]
+channel = "stable-25_05"
+
+[userenv]
+
+[userenv.shared]
+APP_NAME = "JoinAplikasi"
+APP_ENV = "local"
+APP_DEBUG = "true"
+APP_URL = "http://localhost"
+APP_LOCALE = "en"
+APP_FALLBACK_LOCALE = "en"
+APP_FAKER_LOCALE = "en_US"
+APP_MAINTENANCE_DRIVER = "file"
+BCRYPT_ROUNDS = "12"
+LOG_CHANNEL = "stack"
+LOG_STACK = "single"
+LOG_LEVEL = "debug"
+DB_CONNECTION = "pgsql"
+DB_HOST = "helium"
+DB_PORT = "5432"
+DB_DATABASE = "heliumdb"
+DB_USERNAME = "postgres"
+SESSION_DRIVER = "database"
+SESSION_LIFETIME = "120"
+SESSION_ENCRYPT = "false"
+SESSION_PATH = "/"
+BROADCAST_CONNECTION = "log"
+FILESYSTEM_DISK = "local"
+QUEUE_CONNECTION = "database"
+CACHE_STORE = "database"
+MAIL_MAILER = "log"
+MAIL_FROM_ADDRESS = "hello@example.com"
+MIDTRANS_IS_PRODUCTION = "false"
+MIDTRANS_BASE_URL = "https://api.sandbox.midtrans.com"
+MIDTRANS_NOTIFICATION_ROUTE = "/webhooks/midtrans"
