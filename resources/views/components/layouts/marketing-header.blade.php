@@ -7,7 +7,7 @@
 
 @php
     $authUser = $authUser ?? auth()->user();
-    $brandName = config('app.name', 'Patungin.id');
+    $brandName = config('app.name', 'JoinAplikasi');
     $brandInitial = mb_strtoupper(mb_substr($brandName, 0, 1, 'UTF-8'));
     $navLinks = [
         ['label' => 'Produk', 'anchor' => '#layanan'],
@@ -34,20 +34,19 @@
             @endforeach
         </nav>
         <div class="flex items-center gap-3">
-            <button
-                type="button"
-                x-data="{ dark: document.documentElement.classList.contains('dark') }"
-                @click="window.JoinTheme && window.JoinTheme.toggle(); dark = !dark"
-                :title="dark ? 'Mode Terang' : 'Mode Gelap'"
-                class="inline-flex h-10 w-10 items-center justify-center rounded-2xl border border-slate-200 text-slate-600 transition hover:-translate-y-0.5 hover:border-slate-300 dark:border-slate-700 dark:text-slate-300 dark:hover:border-slate-600"
-            >
-                <svg x-show="dark" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <circle cx="12" cy="12" r="4" stroke-width="1.5"/>
-                    <path d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.657-7.657l-1.414 1.414M7.757 16.243l-1.414 1.414m0-12.728l1.414 1.414m9.9 9.9l1.414 1.414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                <svg x-show="!dark" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                    <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
+            <button type="button" data-theme-toggle class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700 transition hover:-translate-y-0.5 dark:border-slate-700 dark:text-slate-100">
+                <span data-theme-icon="sun" class="hidden">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <circle cx="12" cy="12" r="4" />
+                        <path d="M12 2v2m0 16v2m10-10h-2M4 12H2m15.657-7.657l-1.414 1.414M7.757 16.243l-1.414 1.414m0-12.728l1.414 1.414m9.9 9.9l1.414 1.414" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </span>
+                <span data-theme-icon="moon">
+                    <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                    </svg>
+                </span>
+                <!-- <span data-theme-label>Mode Gelap</span> -->
             </button>
 
             @if($authUser)

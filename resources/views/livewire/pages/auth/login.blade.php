@@ -61,7 +61,7 @@ new #[Layout('layouts.guest')] class extends Component
         <div class="flex items-center justify-between gap-4">
             <div>
                 <p class="text-xs font-semibold uppercase tracking-[0.3em] text-slate-500 dark:text-slate-400">Masuk sekarang</p>
-                <h2 class="mt-3 text-2xl font-semibold text-slate-900 dark:text-white">Patungin.id Dashboard</h2>
+                <h2 class="mt-3 text-2xl font-semibold text-slate-900 dark:text-white">{{ config('app.name') }} Dashboard</h2>
             </div>
             <span class="rounded-full bg-emerald-500/15 px-3 py-1 text-xs font-semibold text-emerald-600 dark:bg-emerald-500/10 dark:text-emerald-300">Realtime</span>
         </div>

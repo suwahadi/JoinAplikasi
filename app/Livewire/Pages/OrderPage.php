@@ -165,7 +165,7 @@ class OrderPage extends Component
             'paymentInstructions' => $paymentInstructions,
             'pageState'           => $this->resolvePageState(),
         ])->layout('layouts.marketing', [
-            'title' => 'Order ' . $this->transaction->order_code . ' · Patungin',
+            'title' => 'Order ' . $this->transaction->order_code . ' · ' . config('app.name'),
         ]);
     }
 

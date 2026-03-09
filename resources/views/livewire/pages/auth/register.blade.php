@@ -182,6 +182,6 @@ new #[Layout('layouts.guest')] class extends Component
                 Masuk di sini
             </a>
         </p>
-        <p class="mt-2 text-center text-xs text-slate-400 dark:text-slate-500">Dengan mendaftar kamu menyetujui S&amp;K dan kebijakan privasi Patungin.id.</p>
+        <p class="mt-2 text-center text-xs text-slate-400 dark:text-slate-500">Dengan mendaftar kamu menyetujui S&amp;K dan kebijakan privasi {{ config('app.name') }}.</p>
     </div>
 </section>

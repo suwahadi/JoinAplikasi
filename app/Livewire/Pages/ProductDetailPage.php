@@ -119,7 +119,7 @@ class ProductDetailPage extends Component
             'selectedPackage' => $selectedPackage,
             'groupStats' => $this->groupStats(),
         ])->layout('layouts.marketing', [
-            'title' => $this->product->name . ' · Patungin',
+            'title' => $this->product->name . ' · ' . config('app.name'),
         ]);
     }
 

@@ -60,7 +60,7 @@
                     <div class="flex-1">
                         <p class="text-xs font-semibold uppercase tracking-[0.28em] text-orange-500">{{ $categoryLabel }}</p>
                         <h1 class="mt-2 text-4xl font-semibold text-slate-900 dark:text-white">{{ $product->name }}</h1>
-                        <p class="mt-4 text-base text-slate-600 dark:text-slate-300">{{ $product->description ?? 'Gabung patungan resmi yang diawasi admin. Notifikasi seat & pembayaran otomatis dari dashboard Patungin.' }}</p>
+                        <p class="mt-4 text-base text-slate-600 dark:text-slate-300">{{ $product->description ?? 'Gabung patungan resmi yang diawasi admin. Notifikasi seat & pembayaran otomatis dari dashboard ' . config('app.name') . '.' }}</p>
                     </div>
                 </div>
 
@@ -186,7 +186,7 @@
             <div class="mt-6 space-y-6 text-sm text-slate-600 dark:text-slate-400">
                 <div>
                     <p class="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-300">Deskripsi</p>
-                    <p class="mt-2 text-base text-slate-600 dark:text-slate-300">{{ $product->description ?? 'Layanan premium resmi yang dibagikan ke komunitas terpercaya. Patungin menanggung manajemen akun, pembayaran rutin, serta bantuan teknis ketika kamu butuh upgrade.' }}</p>
+                    <p class="mt-2 text-base text-slate-600 dark:text-slate-300">{{ $product->description ?? 'Layanan premium resmi yang dibagikan ke komunitas terpercaya. ' . config('app.name') . ' menanggung manajemen akun, pembayaran rutin, serta bantuan teknis ketika kamu butuh upgrade.' }}</p>
                 </div>
                 <div>
                     <p class="text-sm font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-300">Fitur layanan</p>

@@ -109,7 +109,7 @@
             <div class="grid gap-8 rounded-[28px] border border-slate-200 bg-white/80 p-10 shadow-xl shadow-slate-900/10 dark:border-slate-800 dark:bg-slate-900 lg:grid-cols-2">
                 <div>
                     <p class="text-sm font-semibold uppercase tracking-[0.28em] text-orange-500">Tentang kami</p>
-                    <h3 class="mt-4 text-3xl font-semibold text-slate-900 dark:text-white">Patungin.id membantu komunitas berbagi biaya langganan digital secara aman.</h3>
+                    <h3 class="mt-4 text-3xl font-semibold text-slate-900 dark:text-white">{{ config('app.name') }} membantu komunitas berbagi biaya langganan digital secara aman.</h3>
                     <p class="mt-4 text-base text-slate-600 dark:text-slate-400">Seluruh pembayaran diproses lewat Midtrans dengan signature verification. Setiap grup memiliki admin pendamping yang memonitor aktivasi seat, mengelola slot anggota, hingga pengingat jatuh tempo.</p>
                 </div>
                 <ul class="space-y-4 text-sm text-slate-600 dark:text-slate-300">
