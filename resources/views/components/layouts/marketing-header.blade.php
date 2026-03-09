@@ -6,6 +6,7 @@
 ])
 
 @php
+    $authUser = $authUser ?? auth()->user();
     $brandName = config('app.name', 'Patungin.id');
     $brandInitial = mb_strtoupper(mb_substr($brandName, 0, 1, 'UTF-8'));
     $navLinks = [
