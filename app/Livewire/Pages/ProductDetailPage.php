@@ -9,6 +9,7 @@ use App\Enums\GroupStatus;
 use App\Models\Group;
 use App\Models\Product;
 use App\Models\ProductItem;
+use App\Services\OrderService;
 use Illuminate\Support\Str;
 use Livewire\Component;
 
@@ -60,6 +61,53 @@ class ProductDetailPage extends Component
     {
         if (collect($this->packages)->contains(fn ($package) => $package['id'] === $packageId)) {
             $this->selectedPackageId = $packageId;
+        }
+    }
+
+    public function orderNow(OrderService $orderService): void
+    {
+        if (! auth()->check()) {
+            $this->redirect(route('login'));
+            return;
+        }
+
+        if (! $this->selectedPackageId) {
+            session()->flash('order_error', 'Pilih paket terlebih dahulu.');
+            return;
+        }
+
+        $productItem = ProductItem::find($this->selectedPackageId);
+        if (! $productItem) {
+            session()->flash('order_error', 'Paket tidak ditemukan.');
+            return;
+        }
+
+        try {
+            $transaction = $orderService->createOrderForProductItem(auth()->user(), $productItem);
+            $this->redirect(route('orders.show', $transaction->uuid), navigate: true);
+        } catch (\RuntimeException $e) {
+            session()->flash('order_error', $e->getMessage());
+        }
+    }
+
+    public function joinGroup(int $groupId, OrderService $orderService): void
+    {
+        if (! auth()->check()) {
+            $this->redirect(route('login'));
+            return;
+        }
+
+        $group = Group::find($groupId);
+        if (! $group) {
+            session()->flash('order_error', 'Grup tidak ditemukan.');
+            return;
+        }
+
+        try {
+            $transaction = $orderService->createOrderForGroup(auth()->user(), $group);
+            $this->redirect(route('orders.show', $transaction->uuid), navigate: true);
+        } catch (\RuntimeException $e) {
+            session()->flash('order_error', $e->getMessage());
         }
     }
 

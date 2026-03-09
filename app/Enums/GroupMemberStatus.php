@@ -9,4 +9,5 @@ enum GroupMemberStatus: string
     case PENDING = 'pending';
     case CONFIRMED = 'confirmed';
     case AKTIF = 'aktif';
+    case DIBATALKAN = 'dibatalkan';
 }

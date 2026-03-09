@@ -58,9 +58,35 @@ Uses Replit's built-in PostgreSQL database. Migrations cover:
 - Users, cache, and jobs tables (Laravel defaults)
 - JoinAplikasi domain tables (groups, members, products, transactions, etc.)
 
+## Features
+
+### Checkout Flow
+- Route: `GET /order/{uuid}` (requires auth)
+- `ProductDetailPage` → "Pesan Sekarang" (auto-assign group) & "Gabung grup" (specific group)
+- `OrderService` handles idempotent, race-condition-safe order creation via `lockForUpdate()` + `DB::transaction()`
+- `OrderPage` Livewire component manages channel selection, Midtrans charge, and payment instructions
+- Payment channels: BCA/BNI/BRI/Permata VA, Mandiri Bill, GoPay, QRIS, Indomaret, Alfamart
+
+### Livewire Components
+- `App\Livewire\Pages\HomePage` - Landing page
+- `App\Livewire\Pages\ProductDetailPage` - Product detail with order actions
+- `App\Livewire\Pages\OrderPage` - Checkout / payment instructions page
+
+### Services
+- `App\Services\OrderService` - Idempotent group assignment + transaction creation
+- `App\Services\Payments\MidtransChargeService` - Midtrans Charge API
+- `App\Services\Payments\MidtransNotificationService` - Webhook handler
+- `App\Services\Payments\MidtransSignatureService` - Signature validation
+- `App\Services\Payments\MidtransStatusService` - Transaction status check
+
 ## Architecture Notes
 
 - Sessions and cache stored in database
 - Queue connection uses database driver
-- Livewire Volt for component-based UI
+- Livewire Volt for auth component-based UI
 - Midtrans integration for payment processing (sandbox by default)
+- Race-condition safety: `lockForUpdate()` on group rows during member creation
+- Idempotency: existing active transactions returned without duplicate creation
+- UUID-based route model binding for Transaction (`/order/{transaction:uuid}`)
+- Format waktu: `j M Y, H:i` (contoh: 9 Mar 2026, 22:40)
+- Format mata uang: `Rp 100.000` (titik sebagai pemisah ribuan)

@@ -149,8 +149,27 @@
                 <div class="mt-4 rounded-2xl bg-white/10 px-4 py-3 text-sm text-slate-200 dark:bg-slate-900/10 dark:text-slate-600">
                     Aktivasi seat dilakukan setelah semua slot terisi dan pembayaran via Midtrans terkonfirmasi.
                 </div>
-                <button type="button" class="mt-4 inline-flex w-full items-center justify-center rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:-translate-y-0.5 dark:bg-slate-900 dark:text-white">
-                    Pesan Sekarang
+                @if(session('order_error'))
+                    <div class="mt-3 rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700 dark:border-red-500/30 dark:bg-red-500/10 dark:text-red-300">
+                        {{ session('order_error') }}
+                    </div>
+                @endif
+                <button
+                    type="button"
+                    wire:click="orderNow"
+                    wire:loading.attr="disabled"
+                    wire:loading.class="opacity-70 cursor-not-allowed"
+                    wire:target="orderNow"
+                    class="mt-4 inline-flex w-full items-center justify-center rounded-2xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:-translate-y-0.5 dark:bg-slate-900 dark:text-white">
+                    <svg wire:loading.remove wire:target="orderNow" class="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.3 2.3a1 1 0 0 0 .7 1.7H17m0 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4Zm-10 2a2 2 0 1 0 0 4 2 2 0 0 0 0-4Z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <svg wire:loading wire:target="orderNow" class="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z"/>
+                    </svg>
+                    <span wire:loading.remove wire:target="orderNow">Pesan Sekarang</span>
+                    <span wire:loading wire:target="orderNow">Memproses...</span>
                 </button>
             </div>
         </div>
@@ -281,11 +300,26 @@
                             <p class="text-sm">Harga per user</p>
                             <p class="text-xl font-semibold text-slate-900 dark:text-white">Rp {{ number_format($group['price'] ?? 0, 0, ',', '.') }}</p>
                         </div>
-                        <button type="button" class="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-2 font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:-translate-y-0.5 dark:bg-white dark:text-slate-900">
-                            Gabung grup
-                            <svg class="ml-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M9 5l7 7-7 7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                        <button
+                            type="button"
+                            wire:click="joinGroup({{ $group['id'] }})"
+                            wire:loading.attr="disabled"
+                            wire:loading.class="opacity-70 cursor-not-allowed"
+                            wire:target="joinGroup({{ $group['id'] }})"
+                            wire:key="join-btn-{{ $group['id'] }}"
+                            @if($group['status'] !== \App\Enums\GroupStatus::AVAILABLE->value) disabled @endif
+                            class="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-2 font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-white dark:text-slate-900">
+                            <svg wire:loading.remove wire:target="joinGroup({{ $group['id'] }})" class="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M20 8v6M23 11h-6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
+                            <svg wire:loading wire:target="joinGroup({{ $group['id'] }})" class="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                                <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z"/>
+                            </svg>
+                            <span wire:loading.remove wire:target="joinGroup({{ $group['id'] }})">
+                                {{ $group['status'] === \App\Enums\GroupStatus::AVAILABLE->value ? 'Gabung grup' : 'Grup penuh' }}
+                            </span>
+                            <span wire:loading wire:target="joinGroup({{ $group['id'] }})">Memproses...</span>
                         </button>
                     </div>
                 </div>
