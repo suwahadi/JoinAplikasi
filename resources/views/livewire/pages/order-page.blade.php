@@ -111,14 +111,14 @@
                         <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Semua transaksi dilindungi dan diproses melalui Midtrans.</p>
 
                         <div class="mt-6 space-y-6">
-                            @foreach($channelGroups as $group)
+                            @foreach($channelGroups as $cg)
                                 <div>
                                     <p class="mb-3 flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
-                                        @if($group['icon'] === 'bank')
+                                        @if($cg['icon'] === 'bank')
                                             <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                                 <path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 10v11M12 10v11M16 10v11" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
-                                        @elseif($group['icon'] === 'wallet')
+                                        @elseif($cg['icon'] === 'wallet')
                                             <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
                                                 <rect x="2" y="7" width="20" height="14" rx="2"/>
                                                 <path d="M16 14a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM2 11h20M7 3l-5 4M17 3l5 4" stroke-linecap="round" stroke-linejoin="round"/>
@@ -129,16 +129,18 @@
                                                 <polyline points="9 22 9 12 15 12 15 22" stroke-linecap="round" stroke-linejoin="round"/>
                                             </svg>
                                         @endif
-                                        {{ $group['label'] }}
+                                        {{ $cg['label'] }}
                                     </p>
                                     <div class="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
-                                        @foreach($group['channels'] as $channel)
-                                            @php($isSelected = $selectedChannel === $channel->value)
+                                        @foreach($cg['channels'] as $channel)
+                                            @php
+                                                $isSelected = $selectedChannel === $channel->value;
+                                            @endphp
                                             <button
                                                 type="button"
                                                 wire:click="selectChannel('{{ $channel->value }}')"
                                                 wire:key="ch-{{ $channel->value }}"
-                                                class="group flex items-center gap-3 rounded-2xl border px-4 py-3.5 text-left transition hover:-translate-y-0.5 {{ $isSelected ? 'border-slate-900 bg-slate-900 text-white shadow-lg shadow-slate-900/20 dark:border-white dark:bg-white dark:text-slate-900' : 'border-slate-200 bg-white/70 text-slate-700 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-200 dark:hover:border-slate-600' }}"
+                                                class="flex items-center gap-3 rounded-2xl border px-4 py-3.5 text-left transition hover:-translate-y-0.5 {{ $isSelected ? 'border-slate-900 bg-slate-900 text-white shadow-lg shadow-slate-900/20 dark:border-white dark:bg-white dark:text-slate-900' : 'border-slate-200 bg-white/70 text-slate-700 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-200 dark:hover:border-slate-600' }}"
                                             >
                                                 @if(in_array($channel->value, ['BCA_VA','BNI_VA','BRI_VA','PERMATA_VA','MANDIRI_BILL']))
                                                     <span class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-xl {{ $isSelected ? 'bg-white/20 dark:bg-slate-900/20' : 'bg-slate-100 dark:bg-slate-800' }}">
@@ -244,7 +246,9 @@
                         </div>
 
                         <div class="mt-6">
-                            @php($instrType = $paymentInstructions['type'] ?? '')
+                            @php
+                                $instrType = $paymentInstructions['type'] ?? '';
+                            @endphp
 
                             {{-- Virtual Account --}}
                             @if($instrType === 'bank_transfer' || $instrType === 'echannel')
