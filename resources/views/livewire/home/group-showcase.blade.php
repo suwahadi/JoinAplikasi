@@ -18,7 +18,7 @@
                 <div class="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-white dark:from-slate-950 pointer-events-none"></div>
                 <div class="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-white dark:from-slate-950 pointer-events-none"></div>
 
-                <div class="flex snap-x snap-mandatory gap-3 overflow-x-auto scroll-smooth px-1 py-2" data-tabs-track>
+                <div class="flex snap-x snap-proximity gap-3 overflow-x-auto px-1 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-tabs-track>
                     @forelse($services as $service)
                         @php($isActive = $selectedServiceId === $service['id'])
                         <button
@@ -51,10 +51,10 @@
         </div>
     </div>
 
-    <div class="mt-12 -mx-6 flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth px-6 pb-4 lg:mx-0 lg:grid lg:grid-cols-2 lg:overflow-visible lg:px-0 lg:pb-0">
+    <div class="mt-12 -mx-6 flex snap-x snap-proximity gap-6 overflow-x-auto px-6 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mx-0 lg:grid lg:grid-cols-2 lg:overflow-visible lg:px-0 lg:pb-0">
         @if(! $ready)
             @foreach(range(1, 4) as $i)
-                <div class="w-[85vw] shrink-0 animate-pulse rounded-3xl border border-slate-200 bg-white/60 p-6 sm:w-[400px] lg:w-auto dark:border-slate-800 dark:bg-slate-900/50">
+                <div class="w-[85vw] shrink-0 snap-start animate-pulse rounded-3xl border border-slate-200 bg-white/60 p-6 sm:w-[400px] lg:w-auto dark:border-slate-800 dark:bg-slate-900/50">
                     <div class="h-6 w-1/3 rounded bg-slate-200 dark:bg-slate-800"></div>
                     <div class="mt-4 h-4 w-1/4 rounded bg-slate-200 dark:bg-slate-800"></div>
                     <div class="mt-6 h-40 rounded-2xl bg-slate-100 dark:bg-slate-800/80"></div>
@@ -62,7 +62,7 @@
             @endforeach
         @else
             @forelse($groups as $group)
-                <div class="w-[85vw] shrink-0 rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-lg shadow-slate-900/5 transition hover:-translate-y-0.5 sm:w-[400px] lg:w-auto dark:border-slate-800 dark:bg-slate-900">
+                <div class="w-[85vw] shrink-0 snap-start rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-lg shadow-slate-900/5 transition hover:-translate-y-0.5 sm:w-[400px] lg:w-auto dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex items-start justify-between gap-4">
                         <div>
                             <p class="text-sm text-slate-500 dark:text-slate-400">{{ $group['service'] }}</p>
