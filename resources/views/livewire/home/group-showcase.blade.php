@@ -51,10 +51,10 @@
         </div>
     </div>
 
-    <div class="mt-12 grid gap-6 lg:grid-cols-2">
+    <div class="mt-12 -mx-6 flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth px-6 pb-4 lg:mx-0 lg:grid lg:grid-cols-2 lg:overflow-visible lg:px-0 lg:pb-0">
         @if(! $ready)
             @foreach(range(1, 4) as $i)
-                <div class="animate-pulse rounded-3xl border border-slate-200 bg-white/60 p-6 dark:border-slate-800 dark:bg-slate-900/50">
+                <div class="w-[85vw] shrink-0 animate-pulse rounded-3xl border border-slate-200 bg-white/60 p-6 sm:w-[400px] lg:w-auto dark:border-slate-800 dark:bg-slate-900/50">
                     <div class="h-6 w-1/3 rounded bg-slate-200 dark:bg-slate-800"></div>
                     <div class="mt-4 h-4 w-1/4 rounded bg-slate-200 dark:bg-slate-800"></div>
                     <div class="mt-6 h-40 rounded-2xl bg-slate-100 dark:bg-slate-800/80"></div>
@@ -62,7 +62,7 @@
             @endforeach
         @else
             @forelse($groups as $group)
-                <div class="rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-lg shadow-slate-900/5 transition hover:-translate-y-0.5 dark:border-slate-800 dark:bg-slate-900">
+                <div class="w-[85vw] shrink-0 rounded-3xl border border-slate-200 bg-white/80 p-6 shadow-lg shadow-slate-900/5 transition hover:-translate-y-0.5 sm:w-[400px] lg:w-auto dark:border-slate-800 dark:bg-slate-900">
                     <div class="flex items-start justify-between gap-4">
                         <div>
                             <p class="text-sm text-slate-500 dark:text-slate-400">{{ $group['service'] }}</p>
@@ -103,12 +103,14 @@
                             <p class="font-semibold text-slate-800 dark:text-slate-100">Mulai dari Rp {{ number_format($group['price'] ?? 0, 0, ',', '.') }}</p>
                             <p>Durasi {{ $group['duration'] }} hari</p>
                         </div>
-                        <button type="button" class="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-2 font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:-translate-y-0.5 dark:bg-white dark:text-slate-900">
-                            Gabung grup
-                            <svg class="ml-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                <path d="M9 5l7 7-7 7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
-                            </svg>
-                        </button>
+                        @if($group['product_slug'])
+                            <a href="{{ route('products.show', $group['product_slug']) }}" class="inline-flex items-center justify-center rounded-2xl bg-slate-900 px-5 py-2 font-semibold text-white shadow-lg shadow-slate-900/20 transition hover:-translate-y-0.5 dark:bg-white dark:text-slate-900">
+                                Gabung grup
+                                <svg class="ml-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M9 5l7 7-7 7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                </svg>
+                            </a>
+                        @endif
                     </div>
                 </div>
             @empty

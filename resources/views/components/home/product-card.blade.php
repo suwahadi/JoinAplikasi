@@ -57,7 +57,6 @@
             </div>
             <div class="rounded-2xl border border-dashed border-slate-200 p-3 text-sm text-slate-500 dark:border-slate-700 dark:text-slate-300">
                 <p class="font-semibold text-slate-700 dark:text-slate-100">{{ $usersCopy }}</p>
-                <p>Garansi uang kembali & proteksi Midtrans</p>
             </div>
         </div>
     </div>

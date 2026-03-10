@@ -70,7 +70,7 @@ class GroupShowcase extends Component
             ->where('product_item_id', $serviceId)
             ->with([
                 'productItem:id,name,max_users,product_id',
-                'productItem.product:id,name,duration',
+                'productItem.product:id,name,slug,duration',
                 'members' => function ($query) {
                     $query->select('id', 'group_id', 'user_id', 'status', 'joined_at')
                         ->with('user:id,name')
@@ -103,6 +103,7 @@ class GroupShowcase extends Component
                 'status_label' => $this->statusLabel($group->status?->value),
                 'status_class' => $this->statusClass($group->status?->value),
                 'service' => $group->productItem?->product?->name ?? $group->productItem?->name,
+                'product_slug' => $group->productItem?->product?->slug,
                 'price' => $group->productItem?->price_per_user,
                 'duration' => $group->productItem?->product?->duration ?? 30,
                 'max_users' => $maxUsers,

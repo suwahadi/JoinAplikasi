@@ -41,12 +41,6 @@
                     <h1 class="mt-4 text-4xl font-semibold text-slate-900 sm:text-5xl dark:text-white">Nikmati fitur premium dengan harga patungan terjangkau</h1>
                     <p class="mt-6 text-lg text-slate-600 dark:text-slate-300">Gabung bersama ribuan kreator dan komunitas untuk berbagi biaya layanan digital favoritmu. Team kami bantu proses pembayaran, aktivasi seat, sampai pengingat tagihan.</p>
 
-                    <div class="mt-8 flex flex-wrap gap-3">
-                        @foreach($featureTags as $tag)
-                            <span class="inline-flex items-center rounded-full border border-orange-200 bg-orange-50 px-4 py-1 text-xs font-medium text-orange-700 dark:border-orange-500/30 dark:bg-orange-500/10 dark:text-orange-200">{{ $tag }}</span>
-                        @endforeach
-                    </div>
-
                     <div class="mt-10 flex flex-wrap gap-4">
                         @foreach($ctaButtons as $cta)
                             <a href="{{ $cta['href'] }}" class="inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-sm font-semibold transition {{ $cta['primary'] ? 'bg-slate-900 text-white shadow-xl shadow-slate-900/20 hover:-translate-y-0.5 dark:bg-white dark:text-slate-900' : 'border border-slate-200 text-slate-700 hover:-translate-y-0.5 dark:border-slate-700 dark:text-slate-100' }}">
