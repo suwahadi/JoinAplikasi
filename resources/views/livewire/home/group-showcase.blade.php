@@ -14,11 +14,11 @@
                 </svg>
             </button>
 
-            <div class="relative flex-1">
-                <div class="absolute inset-y-0 left-0 w-12 bg-gradient-to-r from-white dark:from-slate-950 pointer-events-none"></div>
-                <div class="absolute inset-y-0 right-0 w-12 bg-gradient-to-l from-white dark:from-slate-950 pointer-events-none"></div>
+            <div class="relative min-w-0 flex-1 overflow-hidden">
+                <div class="absolute inset-y-0 left-0 z-10 w-12 bg-gradient-to-r from-white dark:from-slate-950 pointer-events-none"></div>
+                <div class="absolute inset-y-0 right-0 z-10 w-12 bg-gradient-to-l from-white dark:from-slate-950 pointer-events-none"></div>
 
-                <div class="flex snap-x snap-proximity gap-3 overflow-x-auto px-1 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-tabs-track>
+                <div class="flex touch-pan-x snap-x snap-proximity gap-3 overflow-x-auto px-1 py-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" data-tabs-track>
                     @forelse($services as $service)
                         @php($isActive = $selectedServiceId === $service['id'])
                         <button
@@ -51,7 +51,7 @@
         </div>
     </div>
 
-    <div class="mt-12 -mx-6 flex snap-x snap-proximity gap-6 overflow-x-auto px-6 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mx-0 lg:grid lg:grid-cols-2 lg:overflow-visible lg:px-0 lg:pb-0">
+    <div class="mt-12 -mx-6 flex touch-pan-x snap-x snap-proximity gap-6 overflow-x-auto px-6 pb-4 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden lg:mx-0 lg:grid lg:grid-cols-2 lg:overflow-visible lg:px-0 lg:pb-0">
         @if(! $ready)
             @foreach(range(1, 4) as $i)
                 <div class="w-[85vw] shrink-0 snap-start animate-pulse rounded-3xl border border-slate-200 bg-white/60 p-6 sm:w-[400px] lg:w-auto dark:border-slate-800 dark:bg-slate-900/50">
