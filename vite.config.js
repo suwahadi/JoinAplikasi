@@ -14,6 +14,11 @@ export default defineConfig({
         hmr: {
             host: '0.0.0.0',
         },
+        host: '127.0.0.1',
+        port: 5173,
+        hmr: {
+            host: '127.0.0.1',
+        },
         allowedHosts: 'all',
         watch: {
             ignored: ['**/vendor/**', '**/node_modules/**', '**/storage/**'],
