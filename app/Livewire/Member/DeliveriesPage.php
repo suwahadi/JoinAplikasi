@@ -8,19 +8,17 @@ use App\Enums\DeliveryStatus;
 use App\Models\DeliveryItem;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Auth;
-use Livewire\Attributes\Layout;
 use Livewire\Component;
 
 class DeliveriesPage extends Component
 {
-    #[Layout('layouts.app')]
     public function render()
     {
         $userId = Auth::id();
 
         /** @var LengthAwarePaginator $items */
         $items = DeliveryItem::query()
-            ->with(['delivery', 'credential', 'groupMember'])
+            ->with(['delivery.group.productItem.product', 'credential.productItem', 'groupMember'])
             ->whereHas('groupMember', fn ($q) => $q->where('user_id', $userId))
             ->where('visible', true)
             ->whereHas('delivery', function ($q) {
@@ -34,6 +32,6 @@ class DeliveriesPage extends Component
 
         return view('livewire.member.deliveries-page', [
             'items' => $items,
-        ])->title('Delivery Saya');
+        ])->layout('layouts.marketing', ['title' => 'Delivery Saya · ' . config('app.name')]);
     }
 }

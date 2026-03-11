@@ -151,7 +151,22 @@
             </div>
 
             {{-- Quick Actions --}}
-            <div class="grid gap-4 sm:grid-cols-2">
+            <div class="grid gap-4 sm:grid-cols-3">
+                <a href="{{ route('member.deliveries') }}" wire:navigate class="group flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-emerald-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-emerald-500/40">
+                    <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-50 transition group-hover:bg-emerald-100 dark:bg-emerald-500/10 dark:group-hover:bg-emerald-500/20">
+                        <svg class="h-5 w-5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                    </span>
+                    <div>
+                        <p class="text-sm font-semibold text-slate-900 dark:text-white">Delivery Saya</p>
+                        <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">Akses kredensial layanan premium</p>
+                    </div>
+                    <svg class="ml-auto h-4 w-4 text-slate-300 transition group-hover:text-emerald-400 dark:text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M9 18l6-6-6-6" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+
                 <a href="{{ route('home') }}" wire:navigate class="group flex items-center gap-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm transition hover:-translate-y-0.5 hover:border-orange-300 hover:shadow-md dark:border-slate-800 dark:bg-slate-900 dark:hover:border-orange-500/40">
                     <span class="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-orange-50 transition group-hover:bg-orange-100 dark:bg-orange-500/10 dark:group-hover:bg-orange-500/20">
                         <svg class="h-5 w-5 text-orange-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
