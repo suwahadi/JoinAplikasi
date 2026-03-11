@@ -21,12 +21,7 @@ class DeliveriesPage extends Component
             ->with(['delivery.group.productItem.product', 'credential.productItem', 'groupMember'])
             ->whereHas('groupMember', fn ($q) => $q->where('user_id', $userId))
             ->where('visible', true)
-            ->whereHas('delivery', function ($q) {
-                $q->where('status', DeliveryStatus::ACTIVE)
-                  ->where(function ($q2) {
-                      $q2->whereNull('expires_at')->orWhere('expires_at', '>', now());
-                  });
-            })
+            ->whereHas('delivery', fn ($q) => $q->where('status', DeliveryStatus::ACTIVE))
             ->latest('id')
             ->paginate(10);
 
