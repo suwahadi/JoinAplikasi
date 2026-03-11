@@ -9,6 +9,7 @@
     $productItem = $group?->productItem;
     $expiresAt = $delivery?->expires_at;
     $daysLeft = $expiresAt ? (int) now()->diffInDays($expiresAt, false) : null;
+    $isExpired = $delivery?->status === \App\Enums\DeliveryStatus::EXPIRED || ($daysLeft !== null && $daysLeft < 0);
     $pwd = $credential?->password ?? '';
 @endphp
 
@@ -44,7 +45,7 @@
                         <p class="mt-0.5 text-sm text-slate-500 dark:text-slate-400">{{ $group?->name ?? '-' }} · {{ $productItem?->name ?? '-' }}</p>
                     </div>
                 </div>
-                @if($daysLeft !== null && $daysLeft < 0)
+                @if($isExpired)
                     <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-700 dark:text-slate-300">
                         <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
                         Kedaluwarsa
