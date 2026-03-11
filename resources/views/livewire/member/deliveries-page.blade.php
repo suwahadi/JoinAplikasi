@@ -72,7 +72,9 @@
                                         <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
                                         Kedaluwarsa
                                     </span>
-                                    <p class="text-xs text-slate-500 dark:text-slate-400">{{ $fmtDate($expiresAt) }}</p>
+                                    @if($expiresAt)
+                                        <p class="text-xs text-slate-500 dark:text-slate-400">{{ $fmtDate($expiresAt) }}</p>
+                                    @endif
                                 @elseif($daysLeft !== null && $daysLeft <= 7)
                                     <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-300">
                                         <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
