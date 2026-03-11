@@ -44,10 +44,22 @@
                         <p class="mt-0.5 text-sm text-slate-500 dark:text-slate-400">{{ $group?->name ?? '-' }} · {{ $productItem?->name ?? '-' }}</p>
                     </div>
                 </div>
-                <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
-                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                    Aktif
-                </span>
+                @if($daysLeft !== null && $daysLeft < 0)
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                        <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                        Kedaluwarsa
+                    </span>
+                @elseif($daysLeft !== null && $daysLeft <= 7)
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1 text-xs font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-300">
+                        <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                        Segera Habis
+                    </span>
+                @else
+                    <span class="inline-flex items-center gap-1.5 rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
+                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                        Aktif
+                    </span>
+                @endif
             </div>
 
             @if($expiresAt)

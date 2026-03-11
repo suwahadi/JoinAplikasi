@@ -66,20 +66,28 @@
                                 <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ $group?->name ?? '-' }} · {{ $productItem?->name ?? '-' }}</p>
                             </div>
                             <div class="flex shrink-0 flex-col items-end gap-1.5">
-                                <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
-                                    <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
-                                    Aktif
-                                </span>
-                                @if($expiresAt)
-                                    <p class="text-xs text-slate-500 dark:text-slate-400">
-                                        @if($daysLeft !== null && $daysLeft >= 0)
-                                            {{ $daysLeft }} hari tersisa
-                                        @else
-                                            Berlaku s.d. {{ $fmtDate($expiresAt) }}
-                                        @endif
-                                    </p>
+                                @if($daysLeft !== null && $daysLeft < 0)
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-slate-100 px-2.5 py-0.5 text-xs font-semibold text-slate-600 dark:bg-slate-700 dark:text-slate-300">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+                                        Kedaluwarsa
+                                    </span>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">{{ $fmtDate($expiresAt) }}</p>
+                                @elseif($daysLeft !== null && $daysLeft <= 7)
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-semibold text-amber-700 dark:bg-amber-500/20 dark:text-amber-300">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>
+                                        Segera Habis
+                                    </span>
+                                    <p class="text-xs text-slate-500 dark:text-slate-400">{{ $daysLeft }} hari tersisa</p>
                                 @else
-                                    <p class="text-xs text-slate-500 dark:text-slate-400">Tanpa batas waktu</p>
+                                    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-semibold text-emerald-700 dark:bg-emerald-500/20 dark:text-emerald-300">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>
+                                        Aktif
+                                    </span>
+                                    @if($expiresAt)
+                                        <p class="text-xs text-slate-500 dark:text-slate-400">{{ $daysLeft }} hari tersisa</p>
+                                    @else
+                                        <p class="text-xs text-slate-500 dark:text-slate-400">Tanpa batas waktu</p>
+                                    @endif
                                 @endif
                             </div>
                             <svg class="ml-1 h-4 w-4 shrink-0 text-slate-300 transition group-hover:text-emerald-400 dark:text-slate-600" viewBox="0 0 24 24" fill="none" stroke="currentColor">
