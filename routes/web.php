@@ -5,6 +5,7 @@ use App\Livewire\Pages\HomePage;
 use App\Livewire\Pages\OrderPage;
 use App\Livewire\Pages\ProductDetailPage;
 use App\Livewire\Member\DeliveriesPage;
+use App\Livewire\Member\OrdersPage;
 use App\Livewire\Pages\ProfilePage;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
@@ -34,6 +35,11 @@ Route::get('/member/deliveries', DeliveriesPage::class)
 Route::get('/member/deliveries/{deliveryItem}', \App\Livewire\Member\DeliveryItemShowPage::class)
     ->middleware(['auth'])
     ->name('member.deliveries.show');
+
+// Orders history (non-Filament)
+Route::get('/orders', OrdersPage::class)
+    ->middleware(['auth'])
+    ->name('member.orders');
 
 Route::post('/logout', function () {
     Auth::guard('web')->logout();

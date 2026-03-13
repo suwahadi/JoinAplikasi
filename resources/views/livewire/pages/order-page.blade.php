@@ -38,6 +38,13 @@
         TransactionStatus::DIREFUND->value            => ['label' => 'Direfund', 'class' => 'bg-sky-100 text-sky-700 dark:bg-sky-500/20 dark:text-sky-200'],
     ];
     $statusInfo = $statusMap[$transaction->status->value] ?? ['label' => $transaction->status->value, 'class' => 'bg-slate-100 text-slate-600'];
+
+    // Cari DeliveryItem untuk member ini bila sudah tersedia agar dapat menampilkan tautan langsung
+    $deliveryItem = \App\Models\DeliveryItem::query()
+        ->where('group_member_id', $groupMember->id)
+        ->whereHas('delivery', fn($q) => $q->whereIn('status', [\App\Enums\DeliveryStatus::ACTIVE, \App\Enums\DeliveryStatus::EXPIRED]))
+        ->latest('id')
+        ->first();
 @endphp
 
 <div class="relative isolate overflow-hidden">
@@ -65,8 +72,28 @@
             {{-- Header --}}
             <div class="flex flex-wrap items-center justify-between gap-4">
                 <div>
-                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-orange-500">Konfirmasi Pesanan</p>
-                    <h1 class="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">Selesaikan Pembayaran</h1>
+                    <p class="text-xs font-semibold uppercase tracking-[0.28em] text-orange-500">
+                        @if($transaction->status === TransactionStatus::MENUNGGU_PEMBAYARAN)
+                            Konfirmasi Pesanan
+                        @elseif($transaction->status === TransactionStatus::DIBAYAR && isset($deliveryItem) && $deliveryItem)
+                            Delivery Aktif
+                        @elseif($transaction->status === TransactionStatus::DIBAYAR)
+                            Pembayaran Berhasil
+                        @else
+                            Status Pesanan
+                        @endif
+                    </p>
+                    <h1 class="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">
+                        @if($transaction->status === TransactionStatus::MENUNGGU_PEMBAYARAN)
+                            Selesaikan Pembayaran
+                        @elseif($transaction->status === TransactionStatus::DIBAYAR && isset($deliveryItem) && $deliveryItem)
+                            Akses Layanan Siap
+                        @elseif($transaction->status === TransactionStatus::DIBAYAR)
+                            Pembayaran Dikonfirmasi
+                        @else
+                            Ringkasan Pesanan
+                        @endif
+                    </h1>
                     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Order dibuat {{ $createdAt }}</p>
                 </div>
                 <span class="inline-flex items-center rounded-full px-4 py-2 text-sm font-semibold {{ $statusInfo['class'] }}">
@@ -431,26 +458,39 @@
                             <div>
                                 <p class="text-xs font-semibold uppercase tracking-wide text-emerald-600 dark:text-emerald-300">Pembayaran Berhasil</p>
                                 <h2 class="mt-1 text-2xl font-semibold text-slate-900 dark:text-white">Terima kasih!</h2>
-                                <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Pembayaranmu sudah dikonfirmasi. Admin akan segera mengaktifkan seat.</p>
+                                @if($deliveryItem)
+                                    <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Pembayaranmu sudah dikonfirmasi dan akses layanan sudah <strong>aktif</strong>.</p>
+                                @else
+                                    <p class="mt-1 text-sm text-slate-600 dark:text-slate-300">Pembayaranmu sudah dikonfirmasi. Admin akan segera mengaktifkan seat.</p>
+                                @endif
                             </div>
                         </div>
-                        <div class="mt-6 rounded-2xl border border-emerald-200 bg-white/70 p-5 text-sm text-slate-600 dark:border-emerald-500/20 dark:bg-slate-900/50 dark:text-slate-300">
-                            <p class="font-semibold text-slate-900 dark:text-white">Apa yang terjadi selanjutnya?</p>
-                            <ol class="mt-3 space-y-2">
-                                @foreach(['Admin menerima notifikasi pembayaranmu.', 'Seat akan diaktifkan maksimal 30 menit setelah semua slot terisi.', 'Kamu akan mendapat info akses dari admin via WhatsApp / email.'] as $i => $step)
-                                    <li class="flex items-start gap-2">
-                                        <span class="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white">{{ $i + 1 }}</span>
-                                        <span>{{ $step }}</span>
-                                    </li>
-                                @endforeach
-                            </ol>
-                        </div>
-                        <a href="https://wa.me/6281234567890" target="_blank" rel="noreferrer" class="mt-5 inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:-translate-y-0.5">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 2C6.486 2 2 6.019 2 11c0 2.281.964 4.363 2.561 5.953L4 22l5.176-1.541A10.28 10.28 0 0 0 12 20c5.514 0 10-4.019 10-9s-4.486-9-10-9Zm4.971 12.203c-.208.588-1.229 1.123-1.701 1.193-.453.067-1.004.096-1.621-.103-.374-.12-.853-.275-1.463-.538-2.577-1.115-4.253-3.764-4.381-3.939-.129-.176-1.047-1.396-1.047-2.662 0-1.266.662-1.887.897-2.147.235-.258.515-.323.686-.323.172 0 .343.002.494.009.159.008.37-.059.58.442.208.5.708 1.73.77 1.856.06.127.1.275.018.451-.081.176-.122.274-.24.421-.118.146-.25.327-.356.44-.118.127-.24.265-.103.519.136.254.6.979 1.288 1.587.887.796 1.633 1.045 1.882 1.162.248.117.392.101.536-.061.143-.162.617-.719.783-.965.166-.245.33-.205.558-.12.228.086 1.456.69 1.706.815.25.127.414.19.475.297.06.107.06.619-.149 1.207Z"/>
-                            </svg>
-                            Hubungi Admin
-                        </a>
+                        @if(!$deliveryItem)
+                            <div class="mt-6 rounded-2xl border border-emerald-200 bg-white/70 p-5 text-sm text-slate-600 dark:border-emerald-500/20 dark:bg-slate-900/50 dark:text-slate-300">
+                                <p class="font-semibold text-slate-900 dark:text-white">Apa yang terjadi selanjutnya?</p>
+                                <ol class="mt-3 space-y-2">
+                                    @foreach(['Admin menerima notifikasi pembayaranmu.', 'Seat akan diaktifkan maksimal 30 menit setelah semua slot terisi.', 'Kamu akan mendapat info akses dari admin via WhatsApp / email.'] as $i => $step)
+                                        <li class="flex items-start gap-2">
+                                            <span class="mt-0.5 inline-flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-xs font-bold text-white">{{ $i + 1 }}</span>
+                                            <span>{{ $step }}</span>
+                                        </li>
+                                    @endforeach
+                                </ol>
+                            </div>
+                            <a href="https://wa.me/6281234567890" target="_blank" rel="noreferrer" class="mt-5 inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:-translate-y-0.5">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
+                                    <path d="M12 2C6.486 2 2 6.019 2 11c0 2.281.964 4.363 2.561 5.953L4 22l5.176-1.541A10.28 10.28 0 0 0 12 20c5.514 0 10-4.019 10-9s-4.486-9-10-9Zm4.971 12.203c-.208.588-1.229 1.123-1.701 1.193-.453.067-1.004.096-1.621-.103-.374-.12-.853-.275-1.463-.538-2.577-1.115-4.253-3.764-4.381-3.939-.129-.176-1.047-1.396-1.047-2.662 0-1.266.662-1.887.897-2.147.235-.258.515-.323.686-.323.172 0 .343.002.494.009.159.008.37-.059.58.442.208.5.708 1.73.77 1.856.06.127.1.275.018.451-.081.176-.122.274-.24.421-.118.146-.25.327-.356.44-.118.127-.24.265-.103.519.136.254.6.979 1.288 1.587.887.796 1.633 1.045 1.882 1.162.248.117.392.101.536-.061.143-.162.617-.719.783-.965.166-.245.33-.205.558-.12.228.086 1.456.69 1.706.815.25.127.414.19.475.297.06.107.06.619-.149 1.207Z"/>
+                                </svg>
+                                Hubungi Admin
+                            </a>
+                        @else
+                            <a href="{{ route('member.deliveries.show', $deliveryItem) }}" wire:navigate class="mt-6 inline-flex items-center gap-2 rounded-2xl bg-emerald-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:-translate-y-0.5">
+                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                    <path d="M9 5l7 7-7 7" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                Buka Delivery
+                            </a>
+                        @endif
                     </div>
 
                     @elseif($pageState === 'terminal')
@@ -526,25 +566,14 @@
                                 <span class="font-mono text-sm font-semibold text-slate-900 dark:text-white">{{ $transaction->order_code }}</span>
                             </div>
                             <div class="mt-4 rounded-2xl border border-slate-900 bg-slate-900 px-5 py-4 dark:border-white dark:bg-white">
-                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">Total Tagihan</p>
+                                <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">Total</p>
                                 <p class="mt-1 text-3xl font-bold text-white dark:text-slate-900">Rp {{ number_format($transaction->amount, 0, ',', '.') }}</p>
                                 <p class="mt-1 text-xs text-slate-400 dark:text-slate-500">Untuk 1 slot selama {{ $product->duration ?? 30 }} hari</p>
                             </div>
                         </div>
                     </div>
 
-                    {{-- Help card --}}
-                    <div class="rounded-[28px] border border-slate-200 bg-gradient-to-br from-emerald-500 to-sky-500 p-5 text-white shadow-lg shadow-emerald-500/30 dark:border-slate-800">
-                        <p class="text-xs font-semibold uppercase tracking-[0.2em]">Butuh bantuan?</p>
-                        <p class="mt-2 font-semibold">Admin siap membantu via WhatsApp</p>
-                        <p class="mt-1 text-sm text-white/80">Kendala pembayaran, konfirmasi slot, atau pertanyaan lain.</p>
-                        <a href="https://wa.me/6281234567890" target="_blank" rel="noreferrer" class="mt-4 inline-flex w-full items-center justify-center gap-2 rounded-2xl bg-white/20 px-4 py-2.5 text-sm font-semibold backdrop-blur transition hover:bg-white/30">
-                            <svg class="h-4 w-4" viewBox="0 0 24 24" fill="currentColor">
-                                <path d="M12 2C6.486 2 2 6.019 2 11c0 2.281.964 4.363 2.561 5.953L4 22l5.176-1.541A10.28 10.28 0 0 0 12 20c5.514 0 10-4.019 10-9s-4.486-9-10-9Zm4.971 12.203c-.208.588-1.229 1.123-1.701 1.193-.453.067-1.004.096-1.621-.103-.374-.12-.853-.275-1.463-.538-2.577-1.115-4.253-3.764-4.381-3.939-.129-.176-1.047-1.396-1.047-2.662 0-1.266.662-1.887.897-2.147.235-.258.515-.323.686-.323.172 0 .343.002.494.009.159.008.37-.059.58.442.208.5.708 1.73.77 1.856.06.127.1.275.018.451-.081.176-.122.274-.24.421-.118.146-.25.327-.356.44-.118.127-.24.265-.103.519.136.254.6.979 1.288 1.587.887.796 1.633 1.045 1.882 1.162.248.117.392.101.536-.061.143-.162.617-.719.783-.965.166-.245.33-.205.558-.12.228.086 1.456.69 1.706.815.25.127.414.19.475.297.06.107.06.619-.149 1.207Z"/>
-                            </svg>
-                            Kontak Admin
-                        </a>
-                    </div>
+                    {{-- Help card removed per requirement when delivery is available/streamlined UX --}}
                 </div>
 
             </div>

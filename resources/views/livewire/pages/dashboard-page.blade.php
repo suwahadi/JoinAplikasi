@@ -32,7 +32,7 @@
                     <h1 class="mt-2 text-3xl font-semibold text-slate-900 dark:text-white">Halo, {{ $firstName }}</h1>
                     <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Pantau semua langganan patungan kamu di sini.</p>
                 </div>
-                <a href="{{ route('products.show', 'grok-ai') }}" wire:navigate class="inline-flex items-center gap-2 rounded-2xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/30 transition hover:-translate-y-0.5">
+                <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center gap-2 rounded-2xl bg-orange-500 px-5 py-2.5 text-sm font-semibold text-white shadow-lg shadow-orange-500/30 transition hover:-translate-y-0.5">
                     <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                         <path d="M12 5v14m-7-7h14" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
@@ -89,11 +89,8 @@
                         <h2 class="text-base font-semibold text-slate-900 dark:text-white">Riwayat Pesanan</h2>
                         <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">8 pesanan terakhir</p>
                     </div>
-                    <a href="{{ route('home') }}" wire:navigate class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
-                        <svg class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        Beli Lebih
+                    <a href="/orders" wire:navigate class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700">
+                        Lihat Semua
                     </a>
                 </div>
 
