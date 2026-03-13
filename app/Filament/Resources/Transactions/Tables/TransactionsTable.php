@@ -23,7 +23,9 @@ class TransactionsTable
                     ->formatStateUsing(fn ($state) => $state?->getLabel())
                     ->icon(fn ($state) => $state?->getIcon())
                     ->color(fn ($state) => $state?->getColor()),
-                TextColumn::make('amount')->label('Jumlah')->formatStateUsing(fn ($state) => $state === null ? null : 'Rp ' . number_format((int) $state, 0, ',', '.')),
+                TextColumn::make('discount')->label('Diskon')->formatStateUsing(fn ($state) => $state === null ? null : 'Rp ' . number_format((int) $state, 0, ',', '.')),
+                TextColumn::make('fee')->label('Biaya Admin')->formatStateUsing(fn ($state) => $state === null ? null : 'Rp ' . number_format((int) $state, 0, ',', '.')),
+                TextColumn::make('amount')->label('Total')->formatStateUsing(fn ($state) => $state === null ? null : 'Rp ' . number_format((int) $state, 0, ',', '.')),
                 TextColumn::make('paid_at')->label('Dibayar Pada')->dateTime('d M Y H:i'),
                 TextColumn::make('created_at')->label('Dibuat')->dateTime('d M Y H:i')->sortable()->toggleable(isToggledHiddenByDefault: true),
                 TextColumn::make('updated_at')->label('Diubah')->dateTime('d M Y H:i')->sortable()->toggleable(isToggledHiddenByDefault: true),
@@ -34,6 +36,6 @@ class TransactionsTable
             ->recordActions([
                 EditAction::make(),
             ]);
-            // Tidak ada bulk actions (mass delete dihilangkan)
+            // 
     }
 }

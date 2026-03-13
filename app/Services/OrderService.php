@@ -117,12 +117,19 @@ final class OrderService
             $group->update(['status' => GroupStatus::FULL->value]);
         }
 
+        $base = (int) $productItem->price_per_user;
+        $discount = 0; // voucher/promo
+        $fee = 3500;   // admin fee
+        $total = max(0, $base - $discount + $fee);
+
         return Transaction::create([
             'uuid'               => (string) Str::uuid(),
             'group_member_id'    => $groupMember->id,
             'order_code'         => $this->generateUniqueOrderCode(),
             'payment_channel'    => PaymentChannel::QRIS->value,
-            'amount'             => $productItem->price_per_user,
+            'amount'             => $total,
+            'discount'           => $discount,
+            'fee'                => $fee,
             'status'             => TransactionStatus::MENUNGGU_PEMBAYARAN->value,
             'payment_expired_at' => now()->addHours(24),
         ]);

@@ -28,11 +28,11 @@ Route::get('/profile', ProfilePage::class)
     ->name('profile');
 
 // Member deliveries (non-Filament)
-Route::get('/member/deliveries', DeliveriesPage::class)
+Route::get('/deliveries', DeliveriesPage::class)
     ->middleware(['auth'])
     ->name('member.deliveries');
 
-Route::get('/member/deliveries/{deliveryItem}', \App\Livewire\Member\DeliveryItemShowPage::class)
+Route::get('/deliveries/{deliveryItem}', \App\Livewire\Member\DeliveryItemShowPage::class)
     ->middleware(['auth'])
     ->name('member.deliveries.show');
 

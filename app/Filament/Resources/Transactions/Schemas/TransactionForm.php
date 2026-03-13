@@ -74,10 +74,20 @@ class TransactionForm
                 ->seconds(false)
                 ->nullable(),
             TextInput::make('amount')
-                ->label('Jumlah')
+                ->label('Total')
                 ->numeric()
                 ->minValue(0)
                 ->required(),
+            TextInput::make('discount')
+                ->label('Diskon')
+                ->numeric()
+                ->minValue(0)
+                ->default(0),
+            TextInput::make('fee')
+                ->label('Biaya Admin')
+                ->numeric()
+                ->minValue(0)
+                ->default(0),
             Select::make('status')
                 ->label('Status Transaksi')
                 ->native(false)

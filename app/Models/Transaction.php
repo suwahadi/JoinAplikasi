@@ -33,6 +33,8 @@ class Transaction extends Model
         'payment_expired_at',
         'paid_at',
         'amount',
+        'discount',
+        'fee',
         'status',
     ];
 
@@ -42,6 +44,8 @@ class Transaction extends Model
         'payment_expired_at' => 'datetime',
         'paid_at' => 'datetime',
         'amount' => 'integer',
+        'discount' => 'integer',
+        'fee' => 'integer',
         'status' => TransactionStatus::class,
         'payment_channel' => PaymentChannel::class,
     ];

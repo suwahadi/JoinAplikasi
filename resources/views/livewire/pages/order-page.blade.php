@@ -135,7 +135,6 @@
                     <div class="rounded-[28px] border border-slate-200 bg-white/95 p-7 shadow-[0_35px_80px_rgba(15,23,42,0.12)] dark:border-slate-800 dark:bg-slate-900">
                         <p class="text-xs font-semibold uppercase tracking-[0.28em] text-orange-500">Langkah 1</p>
                         <h2 class="mt-2 text-xl font-semibold text-slate-900 dark:text-white">Pilih Metode Pembayaran</h2>
-                        <p class="mt-1 text-sm text-slate-500 dark:text-slate-400">Semua transaksi dilindungi dan diproses melalui Midtrans.</p>
 
                         <div class="mt-6 space-y-6">
                             @foreach($channelGroups as $cg)
@@ -247,14 +246,6 @@
                                 Batalkan Pesanan
                             </button>
                         </div>
-                    </div>
-
-                    {{-- Security note --}}
-                    <div class="flex items-center gap-3 rounded-2xl border border-emerald-200 bg-emerald-50/80 px-5 py-3.5 text-sm text-emerald-700 dark:border-emerald-500/20 dark:bg-emerald-500/10 dark:text-emerald-300">
-                        <svg class="h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <span>Pembayaran diproses melalui <strong>Midtrans</strong>. Slot grupmu sudah dipesan dan terkunci selama 24 jam.</span>
                     </div>
 
                     @elseif($pageState === 'payment_pending' && $paymentInstructions)
@@ -439,7 +430,7 @@
                             <svg class="h-4 w-4 shrink-0 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                                 <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
                             </svg>
-                            Status pembayaran diperbarui otomatis setelah konfirmasi dari Midtrans.
+                            Status pembayaran diperbarui otomatis setelah pembayaran ini dikonfirmasi.
                         </div>
                         <button wire:click="$refresh" class="shrink-0 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
                             Cek Status
@@ -564,6 +555,20 @@
                             <div class="flex items-center justify-between">
                                 <span class="text-sm text-slate-500 dark:text-slate-400">Kode Order</span>
                                 <span class="font-mono text-sm font-semibold text-slate-900 dark:text-white">{{ $transaction->order_code }}</span>
+                            </div>
+                            <div class="mt-4 space-y-2 text-sm">
+                                <div class="flex items-center justify-between">
+                                    <span class="text-slate-500 dark:text-slate-400">Subtotal</span>
+                                    <span class="font-medium text-slate-900 dark:text-white">Rp {{ number_format((int) $productItem->price_per_user, 0, ',', '.') }}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-slate-500 dark:text-slate-400">Diskon</span>
+                                    <span class="font-medium text-slate-900 dark:text-white">- Rp {{ number_format((int) ($transaction->discount ?? 0), 0, ',', '.') }}</span>
+                                </div>
+                                <div class="flex items-center justify-between">
+                                    <span class="text-slate-500 dark:text-slate-400">Biaya admin</span>
+                                    <span class="font-medium text-slate-900 dark:text-white">+ Rp {{ number_format((int) ($transaction->fee ?? 0), 0, ',', '.') }}</span>
+                                </div>
                             </div>
                             <div class="mt-4 rounded-2xl border border-slate-900 bg-slate-900 px-5 py-4 dark:border-white dark:bg-white">
                                 <p class="text-xs font-semibold uppercase tracking-wide text-slate-400 dark:text-slate-500">Total</p>

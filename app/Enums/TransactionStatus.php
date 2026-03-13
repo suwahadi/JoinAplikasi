@@ -23,8 +23,8 @@ enum TransactionStatus: string implements HasLabel, HasColor, HasIcon
     public function getLabel(): string | Htmlable | null
     {
         return match ($this) {
-            self::MENUNGGU_PEMBAYARAN => 'Menunggu Pembayaran',
-            self::DIBAYAR => 'Dibayar',
+            self::MENUNGGU_PEMBAYARAN => 'Menunggu',
+            self::DIBAYAR => 'Lunas',
             self::GAGAL => 'Gagal',
             self::KEDALUWARSA => 'Kedaluwarsa',
             self::DIBATALKAN => 'Dibatalkan',

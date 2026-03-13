@@ -78,6 +78,14 @@
                             <div class="min-w-0 flex-1">
                                 <p class="truncate text-sm font-semibold text-slate-900 dark:text-white">{{ $product?->name ?? 'Pesanan' }}</p>
                                 <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{{ $order->order_code }} · {{ $order->created_at?->format('d M Y') }}</p>
+                                @php
+                                    $base = (int) ($order->groupMember?->group?->productItem?->price_per_user ?? 0);
+                                    $discount = (int) ($order->discount ?? 0);
+                                    $fee = (int) ($order->fee ?? 0);
+                                @endphp
+                                <p class="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+                                    Subtotal Rp {{ number_format($base, 0, ',', '.') }} · Diskon Rp {{ number_format($discount, 0, ',', '.') }} · Biaya Rp {{ number_format($fee, 0, ',', '.') }}
+                                </p>
                             </div>
                             <div class="flex shrink-0 items-center gap-2">
                                 <span class="inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold {{ match($order->status?->value) {
