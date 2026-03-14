@@ -11,9 +11,12 @@ use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Schemas\Schema;
 use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\TextInput;
+use Filament\Schemas\Components\Utilities\Get;
+use Filament\Schemas\Components\Utilities\Set;
 use Filament\Tables\Columns\IconColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Table;
+use Illuminate\Support\Str;
 
 class ItemsRelationManager extends RelationManager
 {
@@ -24,11 +27,19 @@ class ItemsRelationManager extends RelationManager
         return $schema->components([
             TextInput::make('name')
                 ->label('Nama')
-                ->required(),
+                ->required()
+                ->live(onBlur: true)
+                ->afterStateUpdated(function (Set $set, ?string $state): void {
+                    if ($state) {
+                        $set('slug', Str::slug($state));
+                    }
+                }),
             TextInput::make('slug')
                 ->label('Slug')
                 ->required()
-                ->unique(),
+                ->default(fn (Get $get): string => Str::slug((string) $get('name')))
+                ->dehydrateStateUsing(fn ($state, Get $get) => $state ?: Str::slug((string) $get('name')))
+                ->unique(ignoreRecord: true),
             TextInput::make('price_per_user')
                 ->label('Harga per Pengguna')
                 ->numeric()
