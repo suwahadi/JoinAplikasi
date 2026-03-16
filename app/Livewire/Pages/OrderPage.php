@@ -10,6 +10,9 @@ use App\Enums\PaymentChannel;
 use App\Enums\TransactionStatus;
 use App\Models\Transaction;
 use App\Services\Payments\MidtransChargeService;
+use App\Services\Payment\Duitku\DuitkuService;
+use App\Services\Payment\Duitku\DTOs\CreateTransactionRequest as DuitkuCreateRequest;
+use App\Services\Payment\Duitku\Enums\PaymentChannel as DuitkuPaymentChannel;
 use Carbon\Carbon;
 use Livewire\Component;
 
@@ -19,6 +22,11 @@ class OrderPage extends Component
     public string $selectedChannel = 'QRIS';
     public bool $charged = false;
     public string $errorMessage = '';
+    public string $selectedGateway = 'midtrans'; // midtrans | duitku
+    public array $duitkuMethods = [];
+    public string $selectedDuitkuMethod = '';
+    public array $duitkuInstructions = [];
+    public ?string $duitkuPaymentUrl = null;
 
     public function mount(Transaction $transaction): void
     {
@@ -35,8 +43,35 @@ class OrderPage extends Component
 
         $this->selectedChannel = $transaction->payment_channel->value;
         $this->charged = $transaction->midtrans_payload !== null;
-    }
+        $this->selectedGateway = 'midtrans';
 
+        // Jika kembali dari Duitku (returnUrl) dengan reference/resultCode, tandai sebagai sudah digenerate
+        $ref = request()->query('reference');
+        if ($ref) {
+            /** @var DuitkuService $svc */
+            $svc = app(DuitkuService::class);
+            $this->selectedGateway = 'duitku';
+            $this->duitkuPaymentUrl = $svc->getPaymentUrl($ref);
+            $this->charged = true;
+        }
+
+        // Jika status masih menunggu pembayaran dan belum charged (Midtrans), coba hydrate dari Duitku
+        if ($this->transaction->status === TransactionStatus::MENUNGGU_PEMBAYARAN && $this->charged === false) {
+            $this->hydrateDuitkuExisting();
+        }
+
+        // Pulihkan instruksi Duitku (VA/QR/App) dari cache jika tersedia
+        $cachedInstr = cache()->get('duitku_instr_' . $this->transaction->order_code);
+        if (is_array($cachedInstr) && !empty($cachedInstr)) {
+            $this->selectedGateway = 'duitku';
+            $this->duitkuInstructions = $cachedInstr;
+            // Rekonstruksi qr_url jika hanya qr_string tersedia
+            if (($this->duitkuInstructions['type'] ?? '') === 'qris' && empty($this->duitkuInstructions['qr_url']) && !empty($this->duitkuInstructions['qr_string'])) {
+                $this->duitkuInstructions['qr_url'] = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' . urlencode($this->duitkuInstructions['qr_string']);
+            }
+            $this->charged = true;
+        }
+    }
     public function selectChannel(string $channel): void
     {
         if ($this->transaction->status !== TransactionStatus::MENUNGGU_PEMBAYARAN) {
@@ -61,6 +96,12 @@ class OrderPage extends Component
         }
 
         if ($this->charged) {
+            return;
+        }
+
+        // Jika gateway = Duitku, proses via DuitkuService dan redirect ke paymentUrl
+        if ($this->selectedGateway === 'duitku') {
+            $this->payWithDuitku();
             return;
         }
 
@@ -125,6 +166,124 @@ class OrderPage extends Component
         }
     }
 
+    private function hydrateDuitkuExisting(): void
+    {
+        try {
+            /** @var DuitkuService $svc */
+            $svc = app(DuitkuService::class);
+            $existing = $svc->checkTransactionStatus($this->transaction->order_code);
+            if (in_array($existing->statusCode, ['00','01'], true)) {
+                $this->duitkuPaymentUrl = $existing->paymentUrl ?: $svc->getPaymentUrl($existing->reference ?? '');
+                $this->charged = true;
+                $this->selectedGateway = 'duitku';
+            }
+        } catch (\Throwable $e) {
+            // ignore if not found or error
+        }
+    }
+
+    public function selectGateway(string $gateway): void
+    {
+        if (!in_array($gateway, ['midtrans', 'duitku'], true)) {
+            return;
+        }
+        $this->selectedGateway = $gateway;
+        $this->errorMessage = '';
+
+        if ($gateway === 'duitku') {
+            $this->loadDuitkuMethods();
+            $this->hydrateDuitkuExisting();
+        }
+    }
+
+    public function loadDuitkuMethods(): void
+    {
+        try {
+            /** @var DuitkuService $svc */
+            $svc = app(DuitkuService::class);
+            $methods = $svc->getPaymentMethods($this->transaction->amount);
+            $this->duitkuMethods = $methods->map(fn($m) => $m->toArray())->values()->all();
+            $this->selectedDuitkuMethod = $this->duitkuMethods[0]['method'] ?? '';
+        } catch (\Throwable $e) {
+            $this->errorMessage = 'Gagal mengambil metode pembayaran Duitku. Coba beberapa saat lagi.';
+            $this->duitkuMethods = [];
+            $this->selectedDuitkuMethod = '';
+        }
+    }
+
+    private function payWithDuitku(): void
+    {
+        if (empty($this->selectedDuitkuMethod)) {
+            $this->errorMessage = 'Silakan pilih metode pembayaran terlebih dahulu.';
+            return;
+        }
+
+        try {
+            $user = $this->transaction->groupMember->user;
+            $productItem = $this->transaction->groupMember->group->productItem;
+            $product = $productItem->product;
+
+            /** @var DuitkuService $svc */
+            $svc = app(DuitkuService::class);
+
+            // Cek apakah transaksi Duitku sudah pernah dibuat (idempoten berdasarkan merchantOrderId)
+            try {
+                $existing = $svc->checkTransactionStatus($this->transaction->order_code);
+                if ($existing->statusCode === '00' || $existing->statusCode === '01') {
+                    $this->duitkuPaymentUrl = $existing->paymentUrl ?: $svc->getPaymentUrl($existing->reference ?? '');
+                    $this->charged = true;
+                    return;
+                }
+            } catch (\Throwable $e) {
+                // Abaikan jika status belum ada, lanjut membuat transaksi
+            }
+
+            $request = new DuitkuCreateRequest(
+                merchantOrderId: $this->transaction->order_code,
+                paymentAmount: $this->transaction->amount,
+                paymentMethod: DuitkuPaymentChannel::from($this->selectedDuitkuMethod),
+                productDetails: mb_substr($product->name . ' - ' . $productItem->name, 0, 50),
+                email: $user->email,
+                customerVaName: $user->name,
+                callbackUrl: url(config('payment.duitku.callback_url', '/api/payment/duitku/callback')),
+                returnUrl: route('orders.show', $this->transaction->uuid),
+                expiryPeriod: 60,
+            );
+
+            $resp = $svc->createTransaction($request);
+
+            // Simpan URL pembayaran (jika ada) untuk ditampilkan sebagai tombol "Bayar Sekarang"
+            $this->duitkuPaymentUrl = $resp->paymentUrl ?: $svc->getPaymentUrl($resp->reference ?? '');
+
+            // Tidak ada paymentUrl: tampilkan instruksi VA/QR/App di halaman
+            $instrType = 'pending';
+            $qrUrl = null;
+            if (!empty($resp->vaNumber)) {
+                $instrType = 'va';
+            } elseif (!empty($resp->qrString)) {
+                $instrType = 'qris';
+                $qrUrl = 'https://api.qrserver.com/v1/create-qr-code/?size=220x220&data=' . urlencode($resp->qrString);
+            } elseif (!empty($resp->appUrl)) {
+                $instrType = 'app';
+            }
+
+            $this->duitkuInstructions = [
+                'type' => $instrType,
+                'va_number' => $resp->vaNumber,
+                'qr_string' => $resp->qrString,
+                'qr_url' => $qrUrl,
+                'app_url' => $resp->appUrl,
+            ];
+
+            // Simpan instruksi ke cache agar tetap tampil setelah refresh/navigasi ulang
+            cache()->put('duitku_instr_' . $this->transaction->order_code, $this->duitkuInstructions, now()->addMinutes(60));
+
+            $this->charged = true;
+        } catch (\Throwable $e) {
+            $this->errorMessage = 'Gagal memproses pembayaran via Duitku: ' . $e->getMessage();
+        }
+    }
+
     public function cancelOrder(): void
     {
         if ($this->transaction->status !== TransactionStatus::MENUNGGU_PEMBAYARAN) {
@@ -156,14 +315,57 @@ class OrderPage extends Component
 
     public function render()
     {
-        $paymentInstructions = $this->charged
-            ? $this->parsePaymentInstructions($this->transaction->midtrans_payload ?? [])
-            : null;
+        $paymentInstructions = null;
+        if ($this->charged) {
+            if ($this->selectedGateway === 'midtrans') {
+                $paymentInstructions = $this->parsePaymentInstructions($this->transaction->midtrans_payload ?? []);
+            } elseif ($this->selectedGateway === 'duitku') {
+                $paymentInstructions = $this->duitkuInstructions;
+                if ((empty($paymentInstructions) || !is_array($paymentInstructions)) && !empty($this->duitkuPaymentUrl)) {
+                    $paymentInstructions = [
+                        'type' => 'app',
+                        'app_url' => $this->duitkuPaymentUrl,
+                    ];
+                }
+            }
+        }
+
+        // Tentukan judul instruksi pembayaran
+        $paymentTitle = null;
+        if ($this->selectedGateway === 'midtrans') {
+            $paymentTitle = \App\Enums\PaymentChannel::from($this->selectedChannel)->label();
+        } elseif ($this->selectedGateway === 'duitku') {
+            $instrType = is_array($paymentInstructions) ? ($paymentInstructions['type'] ?? '') : '';
+            $title = null;
+            // Cari nama metode dari daftar metode yang sudah dimuat
+            if (!empty($this->selectedDuitkuMethod) && !empty($this->duitkuMethods)) {
+                foreach ($this->duitkuMethods as $m) {
+                    if (($m['method'] ?? '') === $this->selectedDuitkuMethod) {
+                        $title = $m['name'] ?? null;
+                        break;
+                    }
+                }
+            }
+            // Fallback berdasarkan tipe instruksi
+            if (!$title) {
+                $title = match ($instrType) {
+                    'va', 'echannel' => 'Virtual Account',
+                    'qris' => 'QRIS',
+                    'app' => 'Aplikasi Pembayaran',
+                    default => 'Duitku',
+                };
+            }
+            $paymentTitle = $title;
+        }
 
         return view('livewire.pages.order-page', [
             'channelGroups'       => $this->channelGroups(),
             'paymentInstructions' => $paymentInstructions,
             'pageState'           => $this->resolvePageState(),
+            'selectedGateway'     => $this->selectedGateway,
+            'duitkuMethods'       => $this->duitkuMethods,
+            'selectedDuitkuMethod'=> $this->selectedDuitkuMethod,
+            'paymentTitle'        => $paymentTitle,
         ])->layout('layouts.marketing', [
             'title' => 'Order ' . $this->transaction->order_code . ' · ' . config('app.name'),
         ]);

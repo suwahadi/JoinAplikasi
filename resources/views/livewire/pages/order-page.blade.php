@@ -128,14 +128,69 @@
             <div class="grid gap-6 lg:grid-cols-[1fr_380px]">
 
                 {{-- LEFT: Payment Section --}}
-                <div class="space-y-5">
+                <div
+                    class="space-y-5 relative"
+                    wire:loading.class="opacity-60 pointer-events-none"
+                    wire:target="selectGateway,loadDuitkuMethods"
+                    aria-busy="true"
+                >
+
+                    {{-- Section-level loading overlay saat memuat Duitku --}}
+                    <div
+                        wire:loading.delay.short
+                        wire:target="selectGateway,loadDuitkuMethods"
+                        class="pointer-events-none absolute inset-0 z-10 flex items-center justify-center"
+                    >
+                        <div class="rounded-2xl border border-slate-200 bg-white/80 px-5 py-4 shadow-lg backdrop-blur dark:border-slate-700 dark:bg-slate-900/70">
+                            <div class="flex items-center gap-3 text-sm font-medium text-slate-700 dark:text-slate-300">
+                                <svg class="h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z"/>
+                                </svg>
+                                <span>Memuat metode pembayaran...</span>
+                            </div>
+                        </div>
+                    </div>
 
                     @if($pageState === 'awaiting_selection')
-                    {{-- Channel Selection --}}
+                    {{-- Prefetch Duitku methods di background agar cepat saat tab diklik --}}
+                    @if($selectedGateway !== 'duitku')
+                        <div wire:init="loadDuitkuMethods" class="hidden"></div>
+                    @endif
+
+                    {{-- Gateway Selection --}}
                     <div class="rounded-[28px] border border-slate-200 bg-white/95 p-7 shadow-[0_35px_80px_rgba(15,23,42,0.12)] dark:border-slate-800 dark:bg-slate-900">
                         <p class="text-xs font-semibold uppercase tracking-[0.28em] text-orange-500">Langkah 1</p>
+                        <h2 class="mt-2 text-xl font-semibold text-slate-900 dark:text-white">Pilih Payment Gateway</h2>
+                        <div class="mt-5 flex flex-wrap gap-3">
+                            <button type="button"
+                                wire:click="selectGateway('midtrans')"
+                                wire:loading.attr="disabled"
+                                wire:target="selectGateway,loadDuitkuMethods"
+                                class="inline-flex items-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold transition {{ $selectedGateway === 'midtrans' ? 'border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-900' : 'border-slate-200 bg-white/70 text-slate-700 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-200' }}">
+                                Midtrans
+                            </button>
+                            <button type="button"
+                                wire:click="selectGateway('duitku')"
+                                wire:loading.attr="disabled"
+                                wire:target="selectGateway,loadDuitkuMethods"
+                                class="inline-flex items-center gap-2 rounded-2xl border px-4 py-3 text-sm font-semibold transition {{ $selectedGateway === 'duitku' ? 'border-slate-900 bg-slate-900 text-white dark:border-white dark:bg-white dark:text-slate-900' : 'border-slate-200 bg-white/70 text-slate-700 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-200' }}">
+                                <span>Duitku</span>
+                                <span class="ml-1 inline-flex" wire:loading wire:target="selectGateway,loadDuitkuMethods">
+                                    <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:-0.2s]"></span>
+                                    <span class="mx-0.5 h-1.5 w-1.5 animate-bounce rounded-full bg-current"></span>
+                                    <span class="h-1.5 w-1.5 animate-bounce rounded-full bg-current [animation-delay:0.2s]"></span>
+                                </span>
+                            </button>
+                        </div>
+                    </div>
+
+                    {{-- Channel/Method Selection --}}
+                    <div class="rounded-[28px] border border-slate-200 bg-white/95 p-7 shadow-[0_35px_80px_rgba(15,23,42,0.12)] dark:border-slate-800 dark:bg-slate-900">
+                        <p class="text-xs font-semibold uppercase tracking-[0.28em] text-orange-500">Langkah 2</p>
                         <h2 class="mt-2 text-xl font-semibold text-slate-900 dark:text-white">Pilih Metode Pembayaran</h2>
 
+                        @if($selectedGateway === 'midtrans')
                         <div class="mt-6 space-y-6">
                             @foreach($channelGroups as $cg)
                                 <div>
@@ -213,38 +268,108 @@
                                 </div>
                             @endforeach
                         </div>
+                        @else
+                        {{-- Duitku methods --}}
+                        <div class="mt-6">
+                            {{-- Skeleton saat memuat metode Duitku --}}
+                            <div wire:loading wire:target="selectGateway,loadDuitkuMethods" class="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+                                @for($i=0; $i<6; $i++)
+                                    <div class="flex items-center gap-3 rounded-2xl border border-slate-200 bg-white/70 px-4 py-3.5 dark:border-slate-700 dark:bg-slate-900/40 animate-pulse">
+                                        <span class="inline-flex h-8 w-12 shrink-0 rounded-xl bg-slate-200 dark:bg-slate-800"></span>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="h-3 w-28 rounded bg-slate-200 dark:bg-slate-800"></div>
+                                            <div class="mt-2 h-2.5 w-20 rounded bg-slate-200 dark:bg-slate-800"></div>
+                                        </div>
+                                    </div>
+                                @endfor
+                            </div>
+
+                            {{-- Daftar metode setelah termuat --}}
+                            <div wire:loading.remove wire:target="selectGateway,loadDuitkuMethods">
+                                @if(empty($duitkuMethods))
+                                    <div class="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-300">
+                                        Memuat metode pembayaran...
+                                    </div>
+                                @else
+                                <div class="grid gap-2.5 sm:grid-cols-2 lg:grid-cols-3">
+                                    @foreach($duitkuMethods as $m)
+                                        @php $isSel = $selectedDuitkuMethod === ($m['method'] ?? ''); @endphp
+                                        <button type="button"
+                                            wire:click="$set('selectedDuitkuMethod','{{ $m['method'] }}')"
+                                            class="flex items-center gap-3 rounded-2xl border px-4 py-3.5 text-left transition hover:-translate-y-0.5 {{ $isSel ? 'border-slate-900 bg-slate-900 text-white shadow-lg shadow-slate-900/20 dark:border-white dark:bg-white dark:text-slate-900' : 'border-slate-200 bg-white/70 text-slate-700 hover:border-slate-300 dark:border-slate-700 dark:bg-slate-900/40 dark:text-slate-200' }}">
+                                            <span class="inline-flex h-8 w-12 shrink-0 items-center justify-center rounded-xl overflow-hidden {{ $isSel ? 'bg-white/20 dark:bg-slate-900/20' : 'bg-slate-100 dark:bg-slate-800' }}">
+                                                @if(!empty($m['image']))
+                                                    <img src="{{ $m['image'] }}" alt="{{ $m['name'] ?? ($m['method'] ?? 'Metode') }}" class="h-6 w-11 object-contain" loading="lazy" referrerpolicy="no-referrer"/>
+                                                @else
+                                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="14" rx="2"/><path d="M7 17v2a2 2 0 0 0 2 2h6"/></svg>
+                                                @endif
+                                            </span>
+                                            <div class="min-w-0 flex-1">
+                                                <p class="text-sm font-semibold leading-tight">{{ $m['name'] ?? ($m['method'] ?? '-') }}</p>
+                                                <p class="mt-0.5 truncate text-xs {{ $isSel ? 'text-white/70 dark:text-slate-700' : 'text-slate-400' }}">Biaya: {{ $m['fee_formatted'] ?? 'Gratis' }}</p>
+                                            </div>
+                                            @if($isSel)
+                                                <svg class="ml-auto h-4 w-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                            @endif
+                                        </button>
+                                    @endforeach
+                                </div>
+                                @endif
+                            </div>
+                        </div>
+                        @endif
 
                         <div class="mt-8 flex flex-wrap items-center gap-4">
-                            <button
-                                type="button"
-                                wire:click="submitPayment"
-                                wire:loading.attr="disabled"
-                                wire:loading.class="opacity-70 cursor-not-allowed"
-                                wire:target="submitPayment"
-                                class="inline-flex items-center justify-center rounded-2xl bg-emerald-500 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:-translate-y-0.5">
-                                <svg wire:loading.remove wire:target="submitPayment" class="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
-                                </svg>
-                                <svg wire:loading wire:target="submitPayment" class="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
-                                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
-                                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z"/>
-                                </svg>
-                                <span wire:loading.remove wire:target="submitPayment">Bayar Sekarang</span>
-                                <span wire:loading wire:target="submitPayment">Memproses...</span>
-                            </button>
+                            @if($selectedGateway === 'duitku' && $charged)
+                                @if(!empty($duitkuPaymentUrl))
+                                    <a href="{{ $duitkuPaymentUrl }}" target="_blank" rel="noreferrer"
+                                       class="inline-flex items-center justify-center rounded-2xl bg-emerald-500 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:-translate-y-0.5">
+                                        <svg class="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        </svg>
+                                        Bayar Sekarang
+                                    </a>
+                                @endif
+                                <button type="button" wire:click="$refresh"
+                                        class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 px-5 py-3.5 text-sm font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800/40">
+                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M12 8v4l3 3" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                        <path d="M12 3a9 9 0 1 1-9 9" stroke-width="1.5" stroke-linecap="round"/>
+                                    </svg>
+                                    Cek Status Pembayaran
+                                </button>
+                            @else
+                                <button
+                                    type="button"
+                                    wire:click="submitPayment"
+                                    wire:loading.attr="disabled"
+                                    wire:loading.class="opacity-70 cursor-not-allowed"
+                                    wire:target="submitPayment"
+                                    class="inline-flex items-center justify-center rounded-2xl bg-emerald-500 px-7 py-3.5 text-sm font-semibold text-white shadow-lg shadow-emerald-500/30 transition hover:-translate-y-0.5">
+                                    <svg wire:loading.remove wire:target="submitPayment" class="mr-2 h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <svg wire:loading wire:target="submitPayment" class="mr-2 h-4 w-4 animate-spin" viewBox="0 0 24 24" fill="none">
+                                        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+                                        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 0 1 8-8V0C5.373 0 0 5.373 0 12h4Z"/>
+                                    </svg>
+                                    <span wire:loading.remove wire:target="submitPayment">Bayar Sekarang</span>
+                                    <span wire:loading wire:target="submitPayment">Memproses...</span>
+                                </button>
 
-                            <button
-                                type="button"
-                                wire:click="cancelOrder"
-                                wire:confirm="Yakin ingin membatalkan pesanan ini?"
-                                wire:loading.attr="disabled"
-                                wire:target="cancelOrder"
-                                class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 px-5 py-3.5 text-sm font-medium text-slate-600 transition hover:border-red-200 hover:text-red-600 dark:border-slate-700 dark:text-slate-400 dark:hover:text-red-400">
-                                <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                                    <path d="M18 6L6 18M6 6l12 12" stroke-width="1.5" stroke-linecap="round"/>
-                                </svg>
-                                Batalkan Pesanan
-                            </button>
+                                <button
+                                    type="button"
+                                    wire:click="cancelOrder"
+                                    wire:confirm="Yakin ingin membatalkan pesanan ini?"
+                                    wire:loading.attr="disabled"
+                                    wire:target="cancelOrder"
+                                    class="inline-flex items-center gap-2 rounded-2xl border border-slate-200 px-5 py-3.5 text-sm font-medium text-slate-600 transition hover:border-red-200 hover:text-red-600 dark:border-slate-700 dark:text-slate-400 dark:hover:text-red-400">
+                                    <svg class="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                        <path d="M18 6L6 18M6 6l12 12" stroke-width="1.5" stroke-linecap="round"/>
+                                    </svg>
+                                    Batalkan Pesanan
+                                </button>
+                            @endif
                         </div>
                     </div>
 
@@ -255,7 +380,7 @@
                             <div>
                                 <p class="text-xs font-semibold uppercase tracking-[0.28em] text-orange-500">Instruksi Pembayaran</p>
                                 <h2 class="mt-2 text-xl font-semibold text-slate-900 dark:text-white">
-                                    Bayar via {{ PaymentChannel::from($selectedChannel)->label() }}
+                                    Bayar via {{ $paymentTitle ?? (\App\Enums\PaymentChannel::from($selectedChannel)->label()) }}
                                 </h2>
                             </div>
                             <div class="rounded-2xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs font-semibold text-amber-700 dark:border-amber-500/30 dark:bg-amber-500/10 dark:text-amber-200">
@@ -268,8 +393,8 @@
                                 $instrType = $paymentInstructions['type'] ?? '';
                             @endphp
 
-                            {{-- Virtual Account --}}
-                            @if($instrType === 'bank_transfer' || $instrType === 'echannel')
+                            {{-- Virtual Account (Midtrans bank_transfer/echannel) atau Duitku 'va' --}}
+                            @if($instrType === 'bank_transfer' || $instrType === 'echannel' || $instrType === 'va')
                                 <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-5 dark:border-slate-800 dark:bg-slate-900/60">
                                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">
                                         @if($instrType === 'echannel') Kode Bayar Mandiri @else Nomor Virtual Account @endif
@@ -299,16 +424,18 @@
                                         </div>
                                     @else
                                         <div x-data="{ copied: false }" class="flex items-center gap-3 mt-3">
-                                            <p class="text-2xl font-mono font-bold tracking-widest text-slate-900 dark:text-white">{{ $paymentInstructions['va_number'] ?? '-' }}</p>
+                                            <p class="text-2xl font-mono font-bold tracking-widest text-slate-900 dark:text-white">{{ $paymentInstructions['va_number'] ?? ($paymentInstructions['vaNumber'] ?? '-') }}</p>
                                             <button
-                                                @click="navigator.clipboard.writeText('{{ $paymentInstructions['va_number'] ?? '' }}'); copied = true; setTimeout(() => copied = false, 2000)"
+                                                @click="navigator.clipboard.writeText('{{ $paymentInstructions['va_number'] ?? ($paymentInstructions['vaNumber'] ?? '') }}'); copied = true; setTimeout(() => copied = false, 2000)"
                                                 class="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-600 transition hover:bg-slate-50 dark:border-slate-700 dark:bg-slate-800 dark:text-slate-300">
                                                 <svg x-show="!copied" class="h-3.5 w-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor"><rect x="9" y="9" width="13" height="13" rx="2" stroke-width="1.5"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" stroke-width="1.5"/></svg>
                                                 <svg x-show="copied" class="h-3.5 w-3.5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path d="M20 6L9 17l-5-5" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
                                                 <span x-text="copied ? 'Tersalin!' : 'Salin'"></span>
                                             </button>
                                         </div>
-                                        <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Bank {{ $paymentInstructions['bank'] ?? '' }}</p>
+                                        @if(!empty($paymentInstructions['bank']))
+                                            <p class="mt-2 text-sm text-slate-500 dark:text-slate-400">Bank {{ $paymentInstructions['bank'] ?? '' }}</p>
+                                        @endif
                                     @endif
                                 </div>
 
@@ -334,7 +461,7 @@
                                     </ol>
                                 </div>
 
-                            {{-- QRIS --}}
+                            {{-- QRIS (Midtrans/ Duitku) --}}
                             @elseif($instrType === 'qris')
                                 <div class="flex flex-col items-center gap-5 sm:flex-row sm:items-start">
                                     @if(!empty($paymentInstructions['qr_url']))
@@ -358,7 +485,7 @@
                                     </div>
                                 </div>
 
-                            {{-- GoPay --}}
+                            {{-- GoPay (khusus Midtrans) --}}
                             @elseif($instrType === 'gopay')
                                 <div class="space-y-4">
                                     @if(!empty($paymentInstructions['qr_url']))
@@ -385,7 +512,7 @@
                                     @endif
                                 </div>
 
-                            {{-- Minimarket --}}
+                            {{-- Minimarket (khusus Midtrans) --}}
                             @elseif($instrType === 'cstore')
                                 <div class="rounded-2xl border border-slate-100 bg-slate-50/80 p-5 dark:border-slate-800 dark:bg-slate-900/60">
                                     <p class="text-xs font-semibold uppercase tracking-[0.2em] text-slate-500 dark:text-slate-400">Kode Pembayaran {{ $paymentInstructions['store'] ?? '' }}</p>
